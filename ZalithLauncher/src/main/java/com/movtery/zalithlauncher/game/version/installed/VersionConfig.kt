@@ -39,7 +39,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         get() = getStringNotNull(field)
     var ramAllocation: Int = -1
     var enableTouchProxy: Boolean = false
-    var touchVibrateDuration: Int = -1
+    var touchVibrateDuration: Int = 100
 
     constructor(
         filePath: File,
@@ -56,7 +56,7 @@ class VersionConfig(private var versionPath: File) : Parcelable {
         serverIp: String = "",
         ramAllocation: Int = -1,
         enableTouchProxy: Boolean = false,
-        touchVibrateDuration: Int = -1
+        touchVibrateDuration: Int = 100
     ) : this(filePath) {
         this.isolationType = isolationType
         this.skipGameIntegrityCheck = skipGameIntegrityCheck
@@ -227,8 +227,8 @@ class VersionConfig(private var versionPath: File) : Parcelable {
 
 enum class SettingState(val textRes: Int) {
     FOLLOW_GLOBAL(R.string.generic_follow_global),
-    ENABLE(R.string.generic_open),
-    DISABLE(R.string.generic_close)
+    ENABLE(R.string.generic_enable),
+    DISABLE(R.string.generic_disable)
 }
 
 private fun getSettingStateNotNull(type: SettingState?) = type ?: SettingState.FOLLOW_GLOBAL

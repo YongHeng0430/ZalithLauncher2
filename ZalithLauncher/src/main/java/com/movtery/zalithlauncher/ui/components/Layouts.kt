@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -41,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -52,9 +54,9 @@ fun ScalingLabel(
     modifier: Modifier = Modifier,
     text: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 2.dp
+    shadowElevation: Dp = 1.dp
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -80,9 +82,9 @@ fun ScalingLabel(
     onClick: () -> Unit,
     text: String,
     shape: Shape = MaterialTheme.shapes.extraLarge,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
-    shadowElevation: Dp = 2.dp
+    shadowElevation: Dp = 1.dp
 ) {
     val scale = remember { Animatable(initialValue = 0.95f) }
     LaunchedEffect(Unit) {
@@ -104,6 +106,29 @@ fun ScalingLabel(
 }
 
 @Composable
+fun LittleTextLabel(
+    modifier: Modifier = Modifier,
+    text: String,
+    color: Color = MaterialTheme.colorScheme.tertiary,
+    contentColor: Color = MaterialTheme.colorScheme.onTertiary,
+    shape: Shape = MaterialTheme.shapes.large,
+    textStyle: TextStyle = MaterialTheme.typography.labelMedium
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = shape
+    ) {
+        Text(
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+            text = text,
+            style = textStyle
+        )
+    }
+}
+
+@Composable
 fun <E> SimpleListLayout(
     modifier: Modifier = Modifier,
     items: List<E>,
@@ -116,7 +141,9 @@ fun <E> SimpleListLayout(
     getItemSummary: (@Composable (E) -> Unit)? = null,
     enabled: Boolean = true,
     autoCollapse: Boolean = true,
-    onValueChange: (E) -> Unit = {}
+    itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
+    onValueChange: (E) -> Unit = {},
+    selectableAreaShape: Shape = RoundedCornerShape(22.0.dp)
 ) {
     require(items.isNotEmpty()) { "Items list cannot be empty" }
 
@@ -133,15 +160,17 @@ fun <E> SimpleListLayout(
         if (!enabled) expanded = false
     }
 
-    Row(modifier = modifier
-        .fillMaxWidth()
-        .alpha(alpha = if (enabled) 1f else 0.5f)
-        .padding(bottom = 4.dp)) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .alpha(alpha = if (enabled) 1f else 0.5f)
+            .padding(bottom = 4.dp)
+    ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(shape = MaterialTheme.shapes.extraLarge)
+                    .clip(shape = selectableAreaShape)
                     .clickable(enabled = enabled) { expanded = !expanded }
                     .padding(all = 8.dp)
             ) {
@@ -177,7 +206,9 @@ fun <E> SimpleListLayout(
                     exit = shrinkVertically(animationSpec = getAnimateTween()) + fadeOut(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier.padding(itemListPadding)
+                    ) {
                         items.forEach { item ->
                             SimpleListItem(
                                 modifier = Modifier
@@ -248,6 +279,7 @@ fun SimpleIDListLayout(
     title: String,
     summary: String? = null,
     enabled: Boolean = true,
+    itemListPadding: PaddingValues = PaddingValues(bottom = 4.dp),
     onValueChange: (IDItem) -> Unit = {}
 ) {
     SimpleListLayout(
@@ -260,6 +292,7 @@ fun SimpleIDListLayout(
         getItemText = { it.title },
         getItemId = { it.id },
         enabled = enabled,
+        itemListPadding = itemListPadding,
         onValueChange = onValueChange
     )
 }
@@ -397,7 +430,9 @@ fun SwitchLayout(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     title: String,
-    summary: String? = null
+    summary: String? = null,
+    shape: Shape = RoundedCornerShape(22.0.dp),
+    trailingIcon: @Composable (() -> Unit)? = null
 ) {
     fun change(value: Boolean) {
         onCheckedChange(value)
@@ -406,7 +441,7 @@ fun SwitchLayout(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(shape = MaterialTheme.shapes.extraLarge)
+            .clip(shape = shape)
             .clickable { change(!checked) }
             .padding(all = 8.dp)
             .padding(bottom = 4.dp)
@@ -418,6 +453,8 @@ fun SwitchLayout(
         ) {
             TitleAndSummary(title, summary)
         }
+
+        trailingIcon?.invoke()
 
         Switch(
             modifier = Modifier.align(Alignment.CenterVertically),

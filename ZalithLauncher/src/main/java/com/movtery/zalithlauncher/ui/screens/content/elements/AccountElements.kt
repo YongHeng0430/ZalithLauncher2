@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -51,15 +53,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -79,6 +85,7 @@ import com.movtery.zalithlauncher.path.UrlManager
 import com.movtery.zalithlauncher.ui.components.IconTextButton
 import com.movtery.zalithlauncher.ui.components.SimpleAlertDialog
 import com.movtery.zalithlauncher.ui.components.SimpleEditDialog
+import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
 import java.io.IOException
@@ -135,10 +142,15 @@ sealed interface AccountOperation {
  */
 sealed interface AccountSkinOperation {
     data object None: AccountSkinOperation
+    /** 保存皮肤文件 */
     data class SaveSkin(val uri: Uri): AccountSkinOperation
-    data object SelectSkinModel: AccountSkinOperation
+    /** 选择皮肤模型，便于保存皮肤时，顺便将模型类型写入账号文件 */
+    data class SelectSkinModel(val uri: Uri): AccountSkinOperation
+    /** 警告皮肤模型的一些注意事项 */
     data object AlertModel: AccountSkinOperation
+    /** 警告用户是否真的想重置皮肤 */
     data object PreResetSkin: AccountSkinOperation
+    /** 重置皮肤（清除皮肤并刷新账号皮肤模型为""） */
     data object ResetSkin: AccountSkinOperation
 }
 
@@ -238,7 +250,7 @@ fun AccountItem(
     modifier: Modifier = Modifier,
     currentAccount: Account?,
     account: Account,
-    color: Color = MaterialTheme.colorScheme.surfaceContainer,
+    color: Color = itemLayoutColor(),
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     onSelected: (uniqueUUID: String) -> Unit = {},
     onChangeSkin: () -> Unit = {},
@@ -256,7 +268,7 @@ fun AccountItem(
         color = color,
         contentColor = contentColor,
         shape = MaterialTheme.shapes.large,
-        shadowElevation = 2.dp,
+        shadowElevation = 1.dp,
         onClick = {
             if (selected) return@Surface
             onSelected(account.uniqueUUID)
@@ -294,7 +306,7 @@ fun AccountItem(
                 )
             }
             Row {
-                val isLocalHasSkin = account.isLocalAccount() && account.getSkinFile().exists()
+                val isLocalHasSkin = account.isLocalAccount() && account.hasSkinFile
                 val icon = if (isLocalHasSkin) Icons.Default.RestartAlt else Icons.Outlined.Checkroom
                 val description = if (isLocalHasSkin) {
                     stringResource(R.string.generic_reset)
@@ -341,7 +353,6 @@ fun AccountItem(
 fun LoginItem(
     modifier: Modifier = Modifier,
     serverName: String,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onClick: () -> Unit = {}
 ) {
     Row(
@@ -353,8 +364,7 @@ fun LoginItem(
         Icon(
             modifier = Modifier.size(24.dp),
             imageVector = Icons.Default.Add,
-            contentDescription = serverName,
-            tint = contentColor
+            contentDescription = serverName
         )
         Spacer(
             modifier = Modifier.width(8.dp)
@@ -362,7 +372,6 @@ fun LoginItem(
         Text(
             modifier = Modifier.align(Alignment.CenterVertically),
             text = serverName,
-            color = contentColor,
             style = MaterialTheme.typography.labelLarge
         )
     }
@@ -372,7 +381,6 @@ fun LoginItem(
 fun ServerItem(
     modifier: Modifier = Modifier,
     server: Server,
-    contentColor: Color = MaterialTheme.colorScheme.onSecondaryContainer,
     onClick: () -> Unit = {},
     onDeleteClick: () -> Unit = {}
 ) {
@@ -387,7 +395,6 @@ fun ServerItem(
                 .weight(1f)
                 .align(Alignment.CenterVertically),
             text = server.serverName,
-            color = contentColor,
             style = MaterialTheme.typography.labelLarge
         )
         Spacer(
@@ -399,8 +406,7 @@ fun ServerItem(
             Icon(
                 modifier = Modifier.size(24.dp),
                 imageVector = Icons.Filled.Delete,
-                contentDescription = stringResource(R.string.generic_delete),
-                tint = contentColor
+                contentDescription = stringResource(R.string.generic_delete)
             )
         }
     }
@@ -488,7 +494,7 @@ fun LocalLoginDialog(
     val context = LocalContext.current
 
     SimpleEditDialog(
-        title = stringResource(R.string.account_type_local),
+        title = stringResource(R.string.account_local_create_account),
         value = userName,
         onValueChange = { userName = it.trim() },
         label = { Text(text = stringResource(R.string.account_label_username)) },
@@ -542,10 +548,16 @@ fun OtherServerLoginDialog(
     var email by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
 
+    val confirmAction = { //确认操作
+        if (email.isNotEmpty() && password.isNotEmpty()) {
+            onConfirm(email, password)
+        }
+    }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
+            shadowElevation = 6.dp
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -558,9 +570,15 @@ fun OtherServerLoginDialog(
                 Spacer(modifier = Modifier.size(16.dp))
 
                 Column(
-                    modifier = Modifier.weight(1f, fill = false).verticalScroll(rememberScrollState()),
+                    modifier = Modifier
+                        .weight(1f, fill = false)
+                        .verticalScroll(rememberScrollState())
+                        .fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val passwordFocus = remember { FocusRequester() }
+                    val focusManager = LocalFocusManager.current
+
                     OutlinedTextField(
                         value = email,
                         onValueChange = { email = it },
@@ -571,11 +589,21 @@ fun OtherServerLoginDialog(
                                 Text(text = stringResource(R.string.account_supporting_email_invalid_empty))
                             }
                         },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onNext = {
+                                //自动跳到密码输入框，无缝衔接
+                                passwordFocus.requestFocus()
+                            }
+                        ),
                         singleLine = true,
                         shape = MaterialTheme.shapes.large
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     OutlinedTextField(
+                        modifier = Modifier.focusRequester(passwordFocus),
                         value = password,
                         onValueChange = { password = it },
                         isError = password.isEmpty(),
@@ -589,6 +617,16 @@ fun OtherServerLoginDialog(
                                 Text(text = stringResource(R.string.account_supporting_password_invalid_empty))
                             }
                         },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                //用户按下返回，甚至可以在这里直接进行登陆
+                                focusManager.clearFocus(true)
+                                confirmAction()
+                            }
+                        ),
                         singleLine = true,
                         shape = MaterialTheme.shapes.large
                     )
@@ -623,11 +661,7 @@ fun OtherServerLoginDialog(
                     Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         modifier = Modifier.weight(1f),
-                        onClick = {
-                            if (email.isNotEmpty() && password.isNotEmpty()) {
-                                onConfirm(email, password)
-                            }
-                        }
+                        onClick = confirmAction
                     ) {
                         Text(text = stringResource(R.string.generic_confirm))
                     }
@@ -645,7 +679,7 @@ fun SelectSkinModelDialog(
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
-            shadowElevation = 4.dp
+            shadowElevation = 6.dp
         ) {
             Column(
                 modifier = Modifier.padding(all = 16.dp),

@@ -5,7 +5,7 @@
 
 [简体中文](README_ZH_CN.md)  
 
-**Zalith Launcher 2** is a newly designed launcher for **Android devices**, built to run [Minecraft: Java Edition](https://www.minecraft.net/). It leverages the native launch mechanism from [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni), and utilizes **Jetpack Compose** and **Material Design 3** for a modern, native UI experience.  
+**Zalith Launcher 2** is a newly designed launcher for **Android devices** tailored for [Minecraft: Java Edition](https://www.minecraft.net/). The project uses [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) as its core launching engine and features a modern UI built with **Jetpack Compose** and **Material Design 3**.
 We are currently building our official website [zalithlauncher.cn](https://zalithlauncher.cn)  
 Additionally, we are aware that a third-party website has been set up using the name “Zalith Launcher,” appearing to be official. Please note: **this site was not created by us**. It exploits the name to display ads for profit. We **do not participate in, endorse, or trust** such content.  
 Please stay vigilant and **protect your personal privacy**!  
@@ -22,6 +22,7 @@ Here’s the current roadmap of features and development status:
 
 * [x] Core launcher framework (themes, animations, settings, etc.)
 * [x] Game launching and rendering
+* [x] Game version download and installation
 * [x] Control support: virtual mouse pointer / physical mouse & keyboard / gesture control
 * [x] Version management: list, overview, and configuration
 * [x] Customizable game installation directory
@@ -31,7 +32,10 @@ Here’s the current roadmap of features and development status:
 ### 🛠️ In Development / Planned Features
 
 * [ ] Full control system (custom layout editor, control profile manager, etc.)
-* [ ] Game version download and installation
+* [ ] Game version download extensions:
+    * [ ] Install OptiFine with OptiFabric and Fabric
+    * [ ] Install Fabric with the Fabric API mod
+    * [ ] Install Quilt with the Quilted Fabric API mod
 * [ ] Modpack download and automatic installation
 * [ ] Mod download and automatic installation
 * [ ] Resource pack download and automatic installation
@@ -42,16 +46,23 @@ Here’s the current roadmap of features and development status:
 
 ## 🌐 Language and Translation Support
 
-Zalith Launcher 2 currently supports the following two languages:
+### Zalith Launcher 2 currently supports the following two languages:
 
 * **English** (default)
 * **Simplified Chinese**
 
-These two languages are the ones that the project officially **maintains and guarantees completeness**. We welcome community contributions for translations in other languages, but please note the following:
+These two languages are **officially maintained by the project and guaranteed for completeness**.
+
+### Community-supported languages for Zalith Launcher 2:
+
+We welcome the community to contribute translations for other languages!
+
+* **Turkish** - by Star1xr
 
 ### 📌 Why Only English and Simplified Chinese?
 
 * The project is **internationally aimed**, so English is used as the default language; however, since the developer is not a native English speaker, the English content relies heavily on AI-assisted translation, which may contain minor inaccuracies.
+   * If you have any objections to the English translation, please provide the line number of the translated content along with your feedback~ [`values/strings.xml`](./ZalithLauncher/src/main/res/values/strings.xml)
 * The developer [@MovTery](https://github.com/MovTery) is based in China, and can guarantee the quality and completeness of the **Simplified Chinese** translation.
 * Due to resource limitations, the completeness of other language translations cannot be guaranteed at this time and will depend on community contributions.
 
@@ -61,8 +72,8 @@ If you would like to see your native language supported in the project, feel fre
 
 1. **Copy the Default Language Files**
 
-   * Default English translation file location:
-     [`strings.xml`](./ZalithLauncher/src/main/res/values/strings.xml)
+   * Since the English content was translated with AI assistance, please refer primarily to the most accurate Simplified Chinese description.:  
+     [`values-zh-rCN/strings.xml`](./ZalithLauncher/src/main/res/values-zh-rCN/strings.xml)
 2. **Create Your Language Resource Directory**
 
    * For example, Traditional Chinese: `values-zh-rTW`, French: `values-fr`, Japanese: `values-ja`, etc.

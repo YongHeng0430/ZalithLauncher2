@@ -22,6 +22,8 @@
     <string name="generic_close">关闭</string>
     <string name="generic_clear">清除</string>
     <string name="generic_import">导入</string>
+    <string name="generic_enable">启用</string>
+    <string name="generic_disable">禁用</string>
     <string name="generic_open_link">在浏览器访问</string>
     <string name="generic_cannot_empty">内容不能为空！</string>
     <string name="generic_input_invalid_character">名称内包含无效字符："%s"</string>
@@ -34,6 +36,8 @@
     <string name="generic_custom">自定义</string>
     <string name="generic_search">搜索</string>
     <string name="generic_loading">加载中</string>
+    <string name="generic_anyway">坚持使用</string>
+    <string name="generic_go_it">我明白了</string>
     <!--  启动器版本  -->
     <string name="launcher_version_label_alpha">内测版本：%s，仅供演示</string>
     <string name="launcher_version_label_beta">公测版本：%s，仅供演示</string>
@@ -44,10 +48,8 @@
     <string name="theme_color_mistwave">雾澜</string>
     <string name="theme_color_glacier">冰川</string>
     <string name="theme_color_verdant_field">原野暮光</string>
-    <string name="theme_color_ashveil">灰昼</string>
     <string name="theme_color_urban_ash">钛影</string>
     <string name="theme_color_verdant_dawn">静林之晨</string>
-    <string name="theme_color_celestine_veil">霁岚</string>
     <string name="theme_color_picker_title">颜色选择器</string>
     <!--  动画  -->
     <string name="animate_type_bounce">弹跳</string>
@@ -137,7 +139,7 @@
     <string name="download_install_error_jvm_crash">安装过程中遇到了异常，退出代码：%s</string>
     <string name="download_install_error_download_failed">一些文件下载失败，可能是网络问题导致的</string>
     <string name="download_install_success_title">安装成功</string>
-    <string name="download_install_success_message">你的游戏已顺利的经完成了安装！</string>
+    <string name="download_install_success_message">你的游戏已顺利的完成了安装！</string>
     <!--  启动游戏  -->
     <string name="game_launch_no_version">未选择游戏版本！</string>
     <string name="game_launch_no_account">未登录游戏账号！</string>
@@ -153,7 +155,6 @@
     <string name="renderer_name_panfrost">Panfrost (Mali)</string>
     <string name="renderer_version_support">MC 版本支持：</string>
     <string name="renderer_version_unsupported_warning">当前渲染器 %s 不支持该游戏版本，继续使用可能导致渲染错误或游戏崩溃！你确定要无视风险坚持访问吗？</string>
-    <string name="renderer_version_unsupported_anyway">坚持使用</string>
     <!--  账号  -->
     <string name="account_no_account">未找到可用账号</string>
     <string name="account_login">登录</string>
@@ -165,6 +166,7 @@
     <string name="account_type_microsoft">微软账号</string>
     <string name="account_type_local">离线账号</string>
     <string name="account_add_new_server">添加认证服务器</string>
+    <string name="account_add_new_server_button">添加认证服务器</string>
     <string name="account_add_new_account">添加账号</string>
     <string name="account_label_username">填写用户名</string>
     <string name="account_label_server_url">填写 Yggdrasil API 服务器地址</string>
@@ -173,12 +175,24 @@
     <string name="account_change_skin">更换皮肤</string>
     <string name="account_change_skin_select_model_title">选择皮肤模型</string>
     <string name="account_change_skin_select_model_message">该皮肤是 Steve 模型（粗臂）还是 Alex 模型（细臂）？</string>
-    <string name="account_change_skin_select_model_alert">从 Minecraft 1.19.3 起，皮肤种类和角色模型有了更细致的区分。目前由于技术限制，该功能仅保证在 1.19.2 及以下版本中有效！</string>
+    <string name="account_change_skin_select_model_alert_hint1">启动器将在启动游戏的过程中，以自动生成资源包并加载的方式，实现离线账号自定义皮肤功能。</string>
+    <string name="account_change_skin_select_model_alert_hint2">但请注意，这么做并不适用于所有 Minecraft 版本。</string>
+    <string name="account_change_skin_select_model_alert_hint3">从 Minecraft 1.19.3 起，皮肤种类和角色模型有了更细致的区分。</string>
+    <string name="account_change_skin_select_model_alert_hint4">目前由于技术限制，该功能仅保证在 1.19.2 及以下版本中有效！</string>
+    <string name="account_change_skin_select_model_alert_hint5">代替方案：</string>
+    <string name="account_change_skin_select_model_alert_auth_server">使用认证服务器</string>
+    <string name="account_change_skin_select_model_alert_custom_skin_loader">使用 万用皮肤补丁 模组</string>
     <string name="account_change_skin_model_steve">Steve 模型</string>
     <string name="account_change_skin_model_alex">Alex 模型</string>
     <string name="account_change_skin_reset_skin_message">你确定要重置当前账号的皮肤吗？</string>
+    <string name="account_change_skin_not_supported_alex">当前 Minecraft 版本不支持使用 Alex 模型的皮肤，如果你给当前账号的皮肤设置为 Alex 模型，游戏内将只会显示 Steve 的皮肤！</string>
+    <string name="account_change_skin_compatibility_warning">因技术限制，在当前 Minecraft  版本使用自定义皮肤可能会不生效</string>
     <string name="account_supporting_username_invalid_title">该用户名无效</string>
-    <string name="account_supporting_username_invalid_local_message">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符，否则可能将导致游戏无法正常运行。\n正确的用户名举例：Name、Name_、Name123\n错误的用户名举例：Name@、N ame、name_name_name_name\n但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
+    <string name="account_supporting_username_invalid_local_message_hint1">正常的用户名称仅支持英文字母（大小写均可）、数字以及下划线作为用户名，长度不允许少于 3 字符，超过 16 字符</string>
+    <string name="account_supporting_username_invalid_local_message_hint2">否则可能将导致游戏无法正常运行</string>
+    <string name="account_supporting_username_invalid_local_message_hint3">正确的用户名举例：Name、Name_、Name123</string>
+    <string name="account_supporting_username_invalid_local_message_hint4">错误的用户名举例：Name@、N ame、name_name_name_name</string>
+    <string name="account_supporting_username_invalid_local_message_hint5">但如果你使用了相关模组或者插件能够解除这一机制，那么你可以继续使用这个名字，否则请重新命名！</string>
     <string name="account_supporting_username_invalid_still_use">仍旧使用</string>
     <string name="account_supporting_username_invalid_short">该用户名过短</string>
     <string name="account_supporting_username_invalid_long">该用户名过长</string>
@@ -209,6 +223,7 @@
     <string name="account_microsoft_authenticate_minecraft">验证 Minecraft 基本信息</string>
     <string name="account_microsoft_verify_game_ownership">验证是否拥有 Minecraft</string>
     <string name="account_microsoft_getting_player_profile">获取玩家账户信息</string>
+    <string name="account_local_create_account">创建离线账号</string>
     <string name="account_other_login_baseurl_not_set">未设置基础 URL</string>
     <string name="account_other_login_getting_full_url">尝试解析完整 Url 中</string>
     <string name="account_other_login_getting_server_info">获取服务器信息中</string>
@@ -313,6 +328,7 @@
     <string name="minecraft_download_progress_retry_verifying_files">重试验证并补全游戏文件中 \n(%d/%d, %s/%s)</string>
     <string name="minecraft_download_failed">下载 Minecraft 过程中出现异常</string>
     <string name="minecraft_download_failed_retried">在此之前，启动器已经尝试过重试一次，但仍有任务下载失败</string>
+    <string name="minecraft_download_failed_notfound">某些依赖文件无法下载，如果多次尝试仍失败，可能是游戏缺少必要的库文件，建议重新安装游戏</string>
     <!--  设置  -->
     <string name="settings_element_selected">当前选择项：%s</string>
     <string name="settings_label_ignore_if_blank">留白则忽略此设置</string>
@@ -362,6 +378,7 @@
     <string name="settings_game_log_buffer_flush_interval_summary">设置日志缓冲区多长时间刷新一次。刷新太频繁或太久不刷新都可能影响性能</string>
     <string name="settings_control_mouse_physical_mouse_mode_title">实体鼠标控制</string>
     <string name="settings_control_mouse_physical_mouse_mode_summary">连接实体鼠标时，是否禁用虚拟鼠标指针，直接使用系统鼠标指针进行操控</string>
+    <string name="settings_control_mouse_physical_mouse_warning">若你的设备把实体鼠标右键识别为“返回”，或中键识别为“回到桌面”，可进入系统设置 > 开发者选项，开启“禁用权限监控”，大概率能解决</string>
     <string name="settings_control_mouse_size_title">虚拟鼠标大小</string>
     <string name="settings_control_mouse_speed_title">虚拟鼠标灵敏度</string>
     <string name="settings_control_mouse_control_mode_title">虚拟鼠标控制模式</string>
@@ -397,4 +414,6 @@
     <!--  Url  -->
     <string name="url_wiki_minecraft_game_release">https://zh.minecraft.wiki/w/Java%%E7%%89%%88%s?variant=zh-cn</string>
     <string name="url_wiki_minecraft_game_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-cn</string>
+    <!--  仅限中国，中国地区访问 Modrinth 可能会不方便，所以使用 mcmod 中文百科平台，其他语言请使用 Modrinth 或者 CurseForge  -->
+    <string name="url_mod_custom_skin_loader">https://www.mcmod.cn/class/883.html</string>
 </resources>

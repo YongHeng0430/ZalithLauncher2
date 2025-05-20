@@ -12,6 +12,8 @@ import com.movtery.zalithlauncher.game.version.installed.favorites.FavoritesVers
 import com.movtery.zalithlauncher.game.version.installed.utils.VersionInfoUtils
 import com.movtery.zalithlauncher.info.InfoDistributor
 import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.string.compareChar
+import com.movtery.zalithlauncher.utils.string.compareVersion
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -63,11 +65,6 @@ object VersionsManager {
         else folder.exists()
     }
 
-    /**
-     * 版本忽略标识文件，用于VersionsManager忽略该版本文件夹，避免识别它作为一个版本
-     */
-    fun ignoreFile(targetPath: File) = File(targetPath, ".zlIgnore")
-
     fun refresh() {
         currentJob?.cancel()
         currentJob = scope.launch {
@@ -77,12 +74,6 @@ object VersionsManager {
 
             val newVersions = mutableListOf<Version>()
             File(getVersionsHome()).listFiles()?.forEach { versionFile ->
-                val ignoreFile = ignoreFile(versionFile)
-                if (ignoreFile.exists()) {
-                    //忽略这个文件夹
-                    return@forEach
-                }
-
                 runCatching {
                     processVersionFile(versionFile)
                 }.getOrNull()?.let {
@@ -91,12 +82,12 @@ object VersionsManager {
             }
 
             newVersions.sortWith { o1, o2 ->
-                var sort = -StringUtils.compareClassVersions(
-                    o1.getVersionInfo()?.minecraftVersion ?: o1.getVersionName(),
+                val thisVer = o1.getVersionInfo()?.minecraftVersion ?: o1.getVersionName()
+                var sort = -thisVer.compareVersion(
                     o2.getVersionInfo()?.minecraftVersion ?: o2.getVersionName()
                 )
                 if (sort == 0) sort =
-                    StringUtils.compareChar(o1.getVersionName(), o2.getVersionName())
+                    compareChar(o1.getVersionName(), o2.getVersionName())
                 sort
             }
 

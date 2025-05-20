@@ -47,6 +47,7 @@ import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.setting.scaleFactor
 import com.movtery.zalithlauncher.ui.base.BaseComponentActivity
 import com.movtery.zalithlauncher.ui.theme.ZalithLauncherTheme
+import com.movtery.zalithlauncher.utils.device.PhysicalMouseChecker
 import com.movtery.zalithlauncher.utils.getDisplayFriendlyRes
 import com.movtery.zalithlauncher.utils.getParcelableSafely
 import kotlinx.coroutines.Dispatchers
@@ -76,6 +77,8 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val displayMetrics = getDisplayMetrics()
+        //初始化物理鼠标连接检查器
+        PhysicalMouseChecker.initChecker(this)
 
         val bundle = intent.extras ?: throw IllegalStateException("Unknown VM launch state!")
 
@@ -184,7 +187,7 @@ class VMActivity : BaseComponentActivity(), SurfaceTextureListener {
                 source and InputDevice.SOURCE_MOUSE == InputDevice.SOURCE_MOUSE) {
 
                 if (event.keyCode == KeyEvent.KEYCODE_BACK) {
-                    //由于安卓会将鼠标右键当成键盘返回键来处理（？），需要在这里进行拦截
+                    //一些系统会将鼠标右键当成KEYCODE_BACK来处理，需要在这里进行拦截
                     val isPressed = event.action == KeyEvent.ACTION_DOWN
                     //然后发送真实的鼠标右键
                     handler.sendMouseRight(isPressed)
