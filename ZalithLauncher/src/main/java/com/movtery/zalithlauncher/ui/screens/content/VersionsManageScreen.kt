@@ -1,18 +1,18 @@
 package com.movtery.zalithlauncher.ui.screens.content
 
 import android.os.Environment
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Refresh
@@ -102,7 +102,8 @@ private fun GamePathLayout(
 ) {
     val surfaceXOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
-        swapIn = isVisible
+        swapIn = isVisible,
+        isHorizontal = true
     )
 
     var gamePathOperation by remember { mutableStateOf<GamePathOperation>(GamePathOperation.None) }
@@ -130,8 +131,7 @@ private fun GamePathLayout(
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            items(gamePaths.size) { index ->
-                val pathItem = gamePaths[index]
+            items(gamePaths) { pathItem ->
                 GamePathItemLayout(
                     item = pathItem,
                     selected = currentPath == pathItem.path,
@@ -216,14 +216,18 @@ private fun VersionsLayout(
 
                     Column(modifier = Modifier.fillMaxSize()) {
                         Column(modifier = Modifier.fillMaxWidth().padding(PaddingValues(horizontal = 12.dp, vertical = 8.dp))) {
-                            Row(modifier = Modifier.padding(horizontal = 4.dp).fillMaxWidth()) {
+                            Row(
+                                modifier = Modifier
+                                    .padding(horizontal = 4.dp)
+                                    .fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
                                 IconTextButton(
                                     onClick = onRefresh,
                                     imageVector = Icons.Filled.Refresh,
                                     contentDescription = stringResource(R.string.generic_refresh),
                                     text = stringResource(R.string.generic_refresh),
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
                                 IconTextButton(
                                     onClick = onInstall,
                                     imageVector = Icons.Filled.Download,
@@ -242,16 +246,15 @@ private fun VersionsLayout(
 
                         LazyColumn(
                             modifier = Modifier.weight(1f),
-                            contentPadding = PaddingValues(all = 12.dp)
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                         ) {
-                            items(versions.size) { index ->
-                                val version = versions[index]
+                            items(versions) { version ->
                                 VersionItemLayout(
                                     version = version,
                                     selected = version == currentVersion,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(bottom = if (index != versions.size - 1) 12.dp else 0.dp),
+                                        .padding(vertical = 6.dp),
                                     onSelected = {
                                         if (version.isValid()) {
                                             if (version != currentVersion) {

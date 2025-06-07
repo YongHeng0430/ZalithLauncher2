@@ -10,6 +10,7 @@ import com.movtery.zalithlauncher.game.path.getVersionsHome
 import com.movtery.zalithlauncher.setting.AllSettings
 import com.movtery.zalithlauncher.utils.getInt
 import com.movtery.zalithlauncher.utils.platform.MemoryUtils
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
 import com.movtery.zalithlauncher.utils.toBoolean
 import java.io.File
 import kotlin.math.min
@@ -33,6 +34,11 @@ class Version(
     var offlineAccountLogin: Boolean = false
 
     /**
+     * 快速启动单人游戏（存档名），仅支持  1.20+  23w14a+
+     */
+    var quickPlaySingle: String? = null
+
+    /**
      * @return 获取版本所属的版本文件夹
      */
     fun getVersionsFolder(): String = getVersionsHome()
@@ -46,6 +52,11 @@ class Version(
      * @return 获取版本名称
      */
     fun getVersionName(): String = getVersionPath().name
+
+    /**
+     * @return 获取客户端 jar 文件
+     */
+    fun getClientJar(): File = File(getVersionPath(), "$versionName.jar")
 
     /**
      * 设置新的版本名称
@@ -69,7 +80,7 @@ class Version(
      */
     fun isSummaryValid(): Boolean {
         val summary = versionConfig.versionSummary
-        return summary.isNotEmpty() && summary.isNotBlank()
+        return summary.isNotEmptyOrBlank()
     }
 
     /**
@@ -118,7 +129,7 @@ class Version(
     fun getCustomInfo(): String = versionConfig.customInfo.getValueOrDefault(AllSettings.versionCustomInfo.getValue())
         .replace("[zl_version]", BuildConfig.VERSION_NAME)
 
-    fun getServerIp(): String? = versionConfig.serverIp.takeIf { it.isNotEmpty() && it.isNotBlank() }
+    fun getServerIp(): String? = versionConfig.serverIp.takeIf { it.isNotEmptyOrBlank() }
 
     fun getRamAllocation(context: Context = GlobalContext): Int = versionConfig.ramAllocation.takeIf { it >= 256 }?.let {
         min(it, MemoryUtils.getMaxMemoryForSettings(context))
@@ -136,6 +147,7 @@ class Version(
         dest.writeParcelable(versionInfo, flags)
         dest.writeInt(isValid.getInt())
         dest.writeInt(offlineAccountLogin.getInt())
+        dest.writeString(quickPlaySingle)
     }
 
     companion object CREATOR : Parcelable.Creator<Version> {
@@ -145,9 +157,11 @@ class Version(
             val versionInfo = parcel.readParcelable<VersionInfo?>(VersionInfo::class.java.classLoader)
             val isValid = parcel.readInt().toBoolean()
             val offlineAccount = parcel.readInt().toBoolean()
+            val quickPlaySingle = parcel.readString()
 
             return Version(versionName, versionConfig, versionInfo, isValid).apply {
                 offlineAccountLogin = offlineAccount
+                this.quickPlaySingle = quickPlaySingle
             }
         }
 

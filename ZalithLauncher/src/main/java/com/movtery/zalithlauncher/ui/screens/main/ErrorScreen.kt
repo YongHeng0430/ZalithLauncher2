@@ -86,7 +86,7 @@ private fun TopBar(
     Surface(
         modifier = modifier,
         color = color,
-        shadowElevation = 3.dp
+        tonalElevation = 3.dp
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -114,13 +114,13 @@ private fun ErrorContent(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp)
+                .padding(all = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = messageBody,
                 style = MaterialTheme.typography.bodyMedium

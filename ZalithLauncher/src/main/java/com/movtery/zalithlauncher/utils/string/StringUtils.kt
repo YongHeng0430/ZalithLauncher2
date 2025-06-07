@@ -79,12 +79,11 @@ class StringUtils {
         }
 
         fun insertJSONValueList(args: Array<String>, keyValueMap: Map<String, String>) =
-            args.map { it.insertSingleJSONValue(keyValueMap) }.toTypedArray()
-
-        fun String.insertSingleJSONValue(keyValueMap: Map<String, String>): String =
-            keyValueMap.entries.fold(this) { acc, (k, v) ->
-                acc.replace("\${$k}", v ?: "")
-            }
+            args.map {
+                keyValueMap.entries.fold(it) { acc, (k, v) ->
+                    acc.replace("\${$k}", v)
+                }
+            }.toTypedArray()
 
         fun String.splitPreservingQuotes(delimiter: Char = ' '): List<String> {
             val result = mutableListOf<String>()
@@ -120,5 +119,31 @@ class StringUtils {
         }
 
         fun String.isSurrounded(prefix: String, suffix: String): Boolean = this.startsWith(prefix) && this.endsWith(suffix)
+
+        fun String.toFullUnicode(): String {
+            return this.map { "\\u%04x".format(it.code) }.joinToString("")
+        }
+
+        fun String.toUnicodeEscaped(): String {
+            return this.flatMap { ch ->
+                if (ch.code > 127) {
+                    val hex = ch.code.toString(16).padStart(4, '0')
+                    listOf("\\u$hex")
+                } else {
+                    listOf(ch.toString())
+                }
+            }.joinToString("")
+        }
+
+        /**
+         * 过滤掉颜色占位符
+         */
+        fun String.stripColorCodes(): String {
+            return replace(Regex("§[0-9a-fk-orA-FK-OR]"), "")
+        }
+
+        fun String.isEmptyOrBlank(): Boolean = this.isEmpty() || this.isBlank()
+
+        fun String.isNotEmptyOrBlank(): Boolean = !this.isEmptyOrBlank()
     }
 }

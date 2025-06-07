@@ -6,6 +6,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,8 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -130,7 +131,8 @@ fun JavaManageScreen() {
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(top = 8.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 IconTextButton(
                     onClick = { runtimes = getRuntimes(true) },
@@ -138,14 +140,12 @@ fun JavaManageScreen() {
                     contentDescription = stringResource(R.string.generic_refresh),
                     text = stringResource(R.string.generic_refresh),
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 IconTextButton(
                     onClick = { runtimePicker.launch("") },
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.generic_import),
                     text = stringResource(R.string.generic_import),
                 )
-                Spacer(modifier = Modifier.width(8.dp))
                 IconTextButton(
                     onClick = { jarPicker.launch("") },
                     imageVector = Icons.Default.Terminal,
@@ -163,15 +163,15 @@ fun JavaManageScreen() {
 
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                contentPadding = PaddingValues(all = 12.dp)
+                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
             ) {
-                items(runtimes.size) { index ->
+                items(runtimes) { runtime ->
                     JavaRuntimeItem(
-                        runtime = runtimes[index],
+                        runtime = runtime,
                         modifier = Modifier
-                            .padding(bottom = if (index == runtimes.size - 1) 0.dp else 12.dp),
+                            .padding(vertical = 6.dp),
                         onDeleteClick = {
-                            runtimeOperation = RuntimeOperation.PreDelete(runtimes[index])
+                            runtimeOperation = RuntimeOperation.PreDelete(runtime)
                         }
                     )
                 }
@@ -340,13 +340,15 @@ private fun JavaRuntimeItem(
                     style = MaterialTheme.typography.labelMedium
                 )
                 //环境标签
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     if (runtime.isProvidedByLauncher) {
                         Text(
                             text = stringResource(R.string.multirt_runtime_provided_by_launcher),
                             style = MaterialTheme.typography.labelSmall
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
                     }
                     Text(
                         text =  runtime.versionString?.let {
@@ -356,7 +358,6 @@ private fun JavaRuntimeItem(
                         color = if (runtime.versionString != null) contentColor else MaterialTheme.colorScheme.error
                     )
                     runtime.javaVersion.takeIf { it != 0 }?.let { javaVersion ->
-                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = stringResource(R.string.multirt_runtime_version_code, javaVersion),
                             style = MaterialTheme.typography.labelSmall
@@ -364,7 +365,6 @@ private fun JavaRuntimeItem(
                     }
                     runtime.arch?.let { arch ->
                         val compatible = ZLApplication.DEVICE_ARCHITECTURE == Architecture.archAsInt(arch)
-                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = arch.takeIf {
                                 compatible

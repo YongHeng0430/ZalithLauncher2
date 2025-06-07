@@ -1,8 +1,8 @@
 package com.movtery.zalithlauncher.ui.screens.content.download.game
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Link
@@ -33,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,7 +39,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
@@ -59,18 +56,20 @@ import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.ContentCheckBox
 import com.movtery.zalithlauncher.ui.components.LittleTextLabel
 import com.movtery.zalithlauncher.ui.components.ScalingLabel
+import com.movtery.zalithlauncher.ui.components.SimpleTextInputField
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.screens.content.DOWNLOAD_SCREEN_TAG
 import com.movtery.zalithlauncher.ui.screens.content.download.DOWNLOAD_GAME_SCREEN_TAG
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
 import com.movtery.zalithlauncher.utils.animation.swapAnimateDpAsState
 import com.movtery.zalithlauncher.utils.formatDate
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import com.movtery.zalithlauncher.utils.network.NetWorkUtils
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isEmptyOrBlank
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.net.ConnectException
 import java.net.UnknownHostException
 import java.nio.channels.UnresolvedAddressException
@@ -133,7 +132,11 @@ fun SelectGameVersionScreen(
         var versionFilter by remember { mutableStateOf(VersionFilter(release = true, snapshot = false, old = false)) }
 
         var allVersions by remember { mutableStateOf<List<VersionManifest.Version>>(emptyList()) }
-        var filteredVersions by remember { mutableStateOf<List<VersionManifest.Version>>(emptyList()) }
+        val filteredVersions by remember(allVersions, versionFilter) {
+            derivedStateOf {
+                allVersions.filterVersions(versionFilter)
+            }
+        }
 
         Card(
             modifier = Modifier
@@ -169,18 +172,27 @@ fun SelectGameVersionScreen(
                 }
 
                 else -> {
-                    VersionList(
-                        itemContainerColor = itemLayoutColor(),
-                        itemContentColor = MaterialTheme.colorScheme.onSurface,
-                        versionFilter = versionFilter,
-                        onVersionFilterChange = { versionFilter = it },
-                        onRefreshClick = {
-                            forceReload = true
-                            reloadTrigger = !reloadTrigger
-                        },
-                        versions = filteredVersions,
-                        onVersionSelect = onVersionSelect
-                    )
+                    Column {
+                        VersionHeader(
+                            modifier = Modifier.fillMaxWidth(),
+                            versionFilter = versionFilter,
+                            onVersionFilterChange = { versionFilter = it },
+                            itemContainerColor = itemLayoutColor(),
+                            itemContentColor = MaterialTheme.colorScheme.onSurface,
+                            onRefreshClick = {
+                                forceReload = true
+                                reloadTrigger = !reloadTrigger
+                            }
+                        )
+
+                        VersionList(
+                            modifier = Modifier.weight(1f),
+                            itemContainerColor = itemLayoutColor(),
+                            itemContentColor = MaterialTheme.colorScheme.onSurface,
+                            versions = filteredVersions,
+                            onVersionSelect = onVersionSelect
+                        )
+                    }
                 }
             }
         }
@@ -189,12 +201,9 @@ fun SelectGameVersionScreen(
             versionState = VersionState.Loading
             versionState = runCatching {
                 allVersions = MinecraftVersions.getVersionManifest(forceReload).versions
-                filteredVersions = withContext(Dispatchers.Default) {
-                    allVersions.filterVersions(versionFilter)
-                }
                 null
             }.getOrElse { e ->
-                Log.w(SELECT_GAME_VERSION_SCREEN_TAG, "Failed to get version manifest!", e)
+                lWarning("Failed to get version manifest!", e)
                 val message: Pair<Int, Array<Any>?> = when(e) {
                     is HttpRequestTimeoutException -> R.string.error_timeout to null
                     is UnknownHostException, is UnresolvedAddressException -> R.string.error_network_unreachable to null
@@ -209,20 +218,12 @@ fun SelectGameVersionScreen(
                         res to arrayOf(statusCode)
                     }
                     else -> {
-                        Log.e(SELECT_GAME_VERSION_SCREEN_TAG, "An unknown exception was caught!", e)
+                        lError("An unknown exception was caught!", e)
                         val errorMessage = e.localizedMessage ?: e.message ?: e::class.qualifiedName ?: "Unknown error"
                         R.string.error_unknown to arrayOf(errorMessage)
                     }
                 }
                 VersionState.Failure(message.first, message.second)
-            }
-        }
-
-        LaunchedEffect(versionFilter) {
-            if (allVersions.isNotEmpty()) {
-                filteredVersions = withContext(Dispatchers.Default) {
-                    allVersions.filterVersions(versionFilter)
-                }
             }
         }
     }
@@ -240,27 +241,25 @@ private fun List<VersionManifest.Version>.filterVersions(
         else -> versionFilter.old && it.type.startsWith("old")
     }
     val versionId = versionFilter.id
-    val id = (versionId.isEmpty() || versionId.isBlank()) || it.id.contains(versionId)
+    val id = (versionId.isEmptyOrBlank()) || it.id.contains(versionId)
     (type && id)
 }
 
 @Composable
-private fun VersionList(
-    itemContainerColor: Color,
-    itemContentColor: Color,
+private fun VersionHeader(
+    modifier: Modifier = Modifier,
     versionFilter: VersionFilter,
     onVersionFilterChange: (VersionFilter) -> Unit,
-    onRefreshClick: () -> Unit,
-    versions: List<VersionManifest.Version>,
-    onVersionSelect: (String) -> Unit
+    itemContainerColor: Color,
+    itemContentColor: Color,
+    onRefreshClick: () -> Unit = {}
 ) {
-    Column {
+    Column(
+        modifier = modifier.padding(horizontal = 12.dp)
+    ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Row {
                 ContentCheckBox(
@@ -292,45 +291,25 @@ private fun VersionList(
                 }
             }
 
-            Spacer(modifier = Modifier.width(24.dp))
-
             Row(
                 modifier = Modifier.weight(1f),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Surface(
+                SimpleTextInputField(
                     modifier = Modifier.weight(1f),
+                    value = versionFilter.id,
+                    onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
                     color = itemContainerColor,
                     contentColor = itemContentColor,
-                    shape = RoundedCornerShape(50f),
-                    shadowElevation = 1.dp
-                ) {
-                    BasicTextField(
-                        modifier = Modifier
-                            .height(32.dp)
-                            .padding(horizontal = 12.dp, vertical = 8.dp),
-                        value = versionFilter.id,
-                        onValueChange = { onVersionFilterChange(versionFilter.copy(id = it)) },
-                        textStyle = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp),
-                        cursorBrush = SolidColor(LocalTextSelectionColors.current.handleColor),
-                        singleLine = true,
-                        decorationBox = { innerTextField ->
-                            Box(
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                if (versionFilter.id.isEmpty()) {
-                                    Text(
-                                        text = stringResource(R.string.generic_search),
-                                        style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
-                                    )
-                                }
-                                innerTextField()
-                            }
-                        }
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
+                    singleLine = true,
+                    hint = {
+                        Text(
+                            text = stringResource(R.string.generic_search),
+                            style = TextStyle(color = LocalContentColor.current).copy(fontSize = 12.sp)
+                        )
+                    }
+                )
 
                 IconButton(
                     onClick = onRefreshClick
@@ -349,30 +328,37 @@ private fun VersionList(
                 .fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
 
-        val context = LocalContext.current
-
-        LazyColumn(
-            contentPadding = PaddingValues(all = 12.dp)
-        ) {
-            items(versions.size) { index ->
-                val version = versions[index]
-
-                VersionItemLayout(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = if (index != versions.size - 1) 12.dp else 0.dp),
-                    version = version,
-                    onClick = {
-                        onVersionSelect(version.id)
-                    },
-                    onAccessWiki = { wikiUrl ->
-                        NetWorkUtils.openLink(context, wikiUrl)
-                    },
-                    color = itemContainerColor,
-                    contentColor = itemContentColor
-                )
-            }
+@Composable
+private fun VersionList(
+    modifier: Modifier = Modifier,
+    itemContainerColor: Color,
+    itemContentColor: Color,
+    versions: List<VersionManifest.Version>,
+    onVersionSelect: (String) -> Unit
+) {
+    val context = LocalContext.current
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        items(versions) { version ->
+            VersionItemLayout(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                version = version,
+                onClick = {
+                    onVersionSelect(version.id)
+                },
+                onAccessWiki = { wikiUrl ->
+                    NetWorkUtils.openLink(context, wikiUrl)
+                },
+                color = itemContainerColor,
+                contentColor = itemContentColor
+            )
         }
     }
 }
@@ -417,22 +403,22 @@ private fun VersionItemLayout(
             }
 
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                     Text(
                         text = version.id,
                         style = MaterialTheme.typography.labelLarge
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     LittleTextLabel(
                         text = versionType
                     )
                 }
-
-                Spacer(modifier = Modifier.width(4.dp))
 
                 Text(
                     text = formatDate(input = version.releaseTime),

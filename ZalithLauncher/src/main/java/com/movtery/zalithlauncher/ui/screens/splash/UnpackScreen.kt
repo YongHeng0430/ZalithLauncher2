@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -85,7 +86,8 @@ private fun ActionMenu(
 
     val xOffset by swapAnimateDpAsState(
         targetValue = 40.dp,
-        swapIn = isVisible
+        swapIn = isVisible,
+        isHorizontal = true
     )
 
     Card(
@@ -158,13 +160,12 @@ private fun UnpackTaskList(
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(all = 12.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            items(items.size) { index ->
-                val item = items[index]
+            items(items) { item ->
                 TaskItem(
                     item = item,
-                    modifier = Modifier.padding(bottom = if (index == items.size - 1) 0.dp else 12.dp)
+                    modifier = Modifier.padding(vertical = 6.dp)
                 )
             }
         }

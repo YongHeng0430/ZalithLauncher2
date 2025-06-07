@@ -1,16 +1,15 @@
 package com.movtery.zalithlauncher.ui.screens.content.elements
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -52,7 +51,7 @@ import coil3.compose.AsyncImage
 import coil3.gif.GifDecoder
 import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
-import com.movtery.zalithlauncher.game.path.GamePathItem
+import com.movtery.zalithlauncher.game.path.GamePath
 import com.movtery.zalithlauncher.game.path.GamePathManager
 import com.movtery.zalithlauncher.game.version.installed.Version
 import com.movtery.zalithlauncher.game.version.installed.VersionsManager
@@ -64,16 +63,17 @@ import com.movtery.zalithlauncher.ui.components.SimpleTaskDialog
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
 import com.movtery.zalithlauncher.ui.components.secondaryContainerDrawerItemColors
 import com.movtery.zalithlauncher.utils.animation.getAnimateTween
-import com.movtery.zalithlauncher.utils.string.StringUtils
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
 import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.getMessageOrToString
+import com.movtery.zalithlauncher.utils.string.StringUtils.Companion.isNotEmptyOrBlank
 import kotlinx.coroutines.Dispatchers
 
 sealed interface GamePathOperation {
     data object None: GamePathOperation
     data object PathExists: GamePathOperation
     data class AddNewPath(val path: String): GamePathOperation
-    data class RenamePath(val item: GamePathItem): GamePathOperation
-    data class DeletePath(val item: GamePathItem): GamePathOperation
+    data class RenamePath(val item: GamePath): GamePathOperation
+    data class DeletePath(val item: GamePath): GamePathOperation
 }
 
 sealed interface VersionsOperation {
@@ -87,7 +87,7 @@ sealed interface VersionsOperation {
 
 @Composable
 fun GamePathItemLayout(
-    item: GamePathItem,
+    item: GamePath,
     selected: Boolean,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
@@ -202,7 +202,7 @@ fun GamePathOperation(
                     initValue = gamePathOperation.item.title,
                     onDismissRequest = { changeState(GamePathOperation.None) },
                     onConfirm = { value ->
-                        GamePathManager.modifyTitle(gamePathOperation.item.id, value)
+                        GamePathManager.modifyTitle(gamePathOperation.item, value)
                         changeState(GamePathOperation.None)
                     }
                 )
@@ -213,7 +213,7 @@ fun GamePathOperation(
                     text = stringResource(R.string.versions_manage_game_path_delete_message),
                     onDismiss = { changeState(GamePathOperation.None) },
                     onConfirm = {
-                        GamePathManager.removePath(gamePathOperation.item.id)
+                        GamePathManager.removePath(gamePathOperation.item)
                         changeState(GamePathOperation.None)
                     }
                 )
@@ -255,7 +255,7 @@ private fun NameEditPathDialog(
         singleLine = true,
         onDismissRequest = onDismissRequest,
         onConfirm = {
-            if (value.isNotEmpty() || value.isNotBlank()) {
+            if (value.isNotEmptyOrBlank()) {
                 onConfirm(value.trim())
             }
         }
@@ -332,7 +332,7 @@ fun VersionsOperation(
                 context = Dispatchers.IO,
                 onDismiss = { updateVersionsOperation(VersionsOperation.None) },
                 onError = { e ->
-                    Log.e("VersionsOperation.RunTask", "Failed to run task. ${StringUtils.throwableToString(e)}")
+                    lError("Failed to run task.", e)
                     ObjectStates.updateThrowable(
                         ObjectStates.ThrowableMessage(
                             title = errorMessage,
@@ -449,16 +449,15 @@ fun DeleteVersionDialog(
         SimpleAlertDialog(
             title = stringResource(R.string.versions_manage_delete_version),
             text = {
-                Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint1, version.getVersionName()))
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint2))
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint3))
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = stringResource(R.string.versions_manage_delete_version_tip_hint3),
-                    fontWeight = FontWeight.Bold
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint1, version.getVersionName()))
+                    Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint2))
+                    Text(text = stringResource(R.string.versions_manage_delete_version_tip_hint3))
+                    Text(
+                        text = stringResource(R.string.versions_manage_delete_version_tip_hint4),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             },
             onConfirm = deleteVersion,
             onCancel = onDismissRequest,
@@ -537,39 +536,36 @@ fun VersionItemLayout(
                     )
                 }
                 //版本详细信息
-                FlowRow {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     if (!version.isValid()) {
                         Text(
                             text = stringResource(R.string.versions_manage_invalid),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.labelSmall
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
                     }
                     if (version.getVersionConfig().isIsolation()) {
                         Text(
                             text = stringResource(R.string.versions_manage_isolation_enabled),
                             style = MaterialTheme.typography.labelSmall
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
                     }
                     version.getVersionInfo()?.let { versionInfo ->
                         Text(
                             text = versionInfo.minecraftVersion,
                             style = MaterialTheme.typography.labelSmall,
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
                         versionInfo.loaderInfo?.let { loaderInfo ->
                             Text(
                                 text = loaderInfo.name,
                                 style = MaterialTheme.typography.labelSmall
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
                             Text(
                                 text = loaderInfo.version,
                                 style = MaterialTheme.typography.labelSmall
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
                         }
                     }
                 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -168,7 +169,8 @@ private fun LeftActionMenu(
 ) {
     val surfaceXOffset by swapAnimateDpAsState(
         targetValue = (-40).dp,
-        swapIn = isVisible
+        swapIn = isVisible,
+        isHorizontal = true
     )
 
     Card(
@@ -221,7 +223,8 @@ private fun FilesLayout(
 ) {
     val surfaceXOffset by swapAnimateDpAsState(
         targetValue = 40.dp,
-        swapIn = isVisible
+        swapIn = isVisible,
+        isHorizontal = true
     )
 
     Card(
@@ -244,14 +247,13 @@ private fun FilesLayout(
                 it.isNotEmpty()
             }?.let { files ->
                 LazyColumn(
-                    contentPadding = PaddingValues(all = 12.dp)
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                 ) {
-                    items(files.size) { index ->
-                        val file = files[index]
+                    items(files) { file ->
                         FileItem(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = if (index != files.size - 1) 12.dp else 0.dp),
+                                .padding(vertical = 6.dp),
                             file = file,
                             onClick = {
                                 if (!selectFile && file.isDirectory) {

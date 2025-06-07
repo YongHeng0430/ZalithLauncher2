@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -180,13 +180,13 @@ fun SimpleEditDialog(
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium
                 )
-                Spacer(modifier = Modifier.size(16.dp))
 
                 Column(
                     modifier = Modifier
@@ -203,6 +203,7 @@ fun SimpleEditDialog(
                     val focusManager = LocalFocusManager.current
 
                     OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
                         value = value,
                         onValueChange = { onValueChange(it) },
                         label = label,
@@ -223,11 +224,10 @@ fun SimpleEditDialog(
                     )
                     extraContent?.invoke()
                 }
-                Spacer(modifier = Modifier.size(16.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     Button(
                         modifier = Modifier.weight(1f),
@@ -235,7 +235,6 @@ fun SimpleEditDialog(
                     ) {
                         Text(text = stringResource(R.string.generic_cancel))
                     }
-                    Spacer(modifier = Modifier.width(16.dp))
                     Button(
                         modifier = Modifier.weight(1f),
                         onClick = onConfirm
@@ -338,8 +337,7 @@ fun <T> SimpleListDialog(
                 LazyColumn(
                     modifier = Modifier.weight(1f, fill = false)
                 ) {
-                    items(itemsProvider().size) { index ->
-                        val item = itemsProvider()[index]
+                    items(itemsProvider()) { item ->
                         SimpleListItem(
                             selected = false,
                             itemName = itemTextProvider(item),
@@ -386,27 +384,10 @@ fun SimpleTaskDialog(
     val scope = rememberCoroutineScope()
 
     if (inProgress) {
-        Dialog(onDismissRequest = {}) {
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                shadowElevation = 6.dp
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .wrapContentHeight(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(title, style = MaterialTheme.typography.titleMedium)
-                    text?.let {
-                        Text(text = it, style = MaterialTheme.typography.labelSmall)
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
-        }
+        ProgressDialog(
+            title = title,
+            text = text
+        )
     } else {
         onDismiss()
     }
@@ -420,6 +401,34 @@ fun SimpleTaskDialog(
                 onError(e)
             } finally {
                 inProgress = false
+            }
+        }
+    }
+}
+
+@Composable
+fun ProgressDialog(
+    title: String = stringResource(R.string.generic_in_progress),
+    text: String? = null
+) {
+    Dialog(onDismissRequest = {}) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            shadowElevation = 6.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .wrapContentHeight(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(title, style = MaterialTheme.typography.titleMedium)
+                text?.let {
+                    Text(text = it, style = MaterialTheme.typography.labelSmall)
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

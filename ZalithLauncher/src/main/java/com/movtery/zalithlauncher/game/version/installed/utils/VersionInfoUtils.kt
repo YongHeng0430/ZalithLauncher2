@@ -1,11 +1,12 @@
 package com.movtery.zalithlauncher.game.version.installed.utils
 
-import android.util.Log
 import com.google.gson.JsonArray
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import com.movtery.zalithlauncher.game.version.installed.VersionInfo
+import com.movtery.zalithlauncher.utils.logging.Logger.lError
+import com.movtery.zalithlauncher.utils.logging.Logger.lWarning
 import java.io.File
 
 class VersionInfoUtils {
@@ -52,21 +53,64 @@ class VersionInfoUtils {
         fun parseJson(jsonFile: File): VersionInfo? {
             return runCatching {
                 val jsonObject = JsonParser.parseString(jsonFile.readText()).asJsonObject
+                val quickPlay = runCatching {
+                    ensureQuickPlay(jsonObject)
+                }.getOrElse { e ->
+                    lWarning("Failed to parse Quick Play", e)
+                    VersionInfo.QuickPlay(
+                        hasQuickPlaysSupport = false,
+                        isQuickPlaySingleplayer = false,
+                        isQuickPlayMultiplayer = false
+                    )
+                }
                 val (versionId, loaderInfo) = detectMinecraftAndLoader(jsonObject)
-                VersionInfo(versionId, loaderInfo)
+                VersionInfo(versionId, quickPlay, loaderInfo)
             }.getOrElse {
-                Log.e("VersionInfoUtils", "Error parsing version json", it)
+                lError("Error parsing version json", it)
                 null
             }
         }
 
+        /**
+         * 确认是否可以使用 Quick Play
+         */
+        private fun ensureQuickPlay(versionJson: JsonObject): VersionInfo.QuickPlay {
+            var hasQuickPlaysSupport = false
+            var isQuickPlaySingleplayer = false
+            var isQuickPlayMultiplayer = false
+
+            versionJson.getAsJsonObject("arguments")?.getAsJsonArray("game")?.forEach outerFor@{ element ->
+                if (!element.isJsonObject) return@outerFor
+
+                element.asJsonObject.getAsJsonArray("rules")?.forEach innerFor@{ rule ->
+                    if (!rule.isJsonObject) return@innerFor
+
+                    val features = rule.asJsonObject.getAsJsonObject("features") ?: return@innerFor
+
+                    hasQuickPlaysSupport = hasQuickPlaysSupport || features.get("has_quick_plays_support")?.asBoolean ?: false
+                    isQuickPlaySingleplayer = isQuickPlaySingleplayer || features.get("is_quick_play_singleplayer")?.asBoolean ?: false
+                    isQuickPlayMultiplayer = isQuickPlayMultiplayer || features.get("is_quick_play_multiplayer")?.asBoolean ?: false
+
+                    if (hasQuickPlaysSupport && isQuickPlaySingleplayer && isQuickPlayMultiplayer) {
+                        return@ensureQuickPlay VersionInfo.QuickPlay(
+                            hasQuickPlaysSupport = true,
+                            isQuickPlaySingleplayer = true,
+                            isQuickPlayMultiplayer = true
+                        )
+                    }
+                }
+            }
+
+            return VersionInfo.QuickPlay(
+                hasQuickPlaysSupport = hasQuickPlaysSupport,
+                isQuickPlaySingleplayer = isQuickPlaySingleplayer,
+                isQuickPlayMultiplayer = isQuickPlayMultiplayer
+            )
+        }
+
         private fun detectMinecraftAndLoader(versionJson: JsonObject): Pair<String, VersionInfo.LoaderInfo?> {
-            val mcVersion = extractMinecraftVersion(versionJson).also {
-                Log.i("VersionInfoUtils", "Detected Minecraft version: $it")
-            }
-            val loaderInfo = detectModLoader(versionJson)?.also {
-                Log.i("VersionInfoUtils", "Detected ModLoader: $it")
-            }
+            val mcVersion = extractMinecraftVersion(versionJson)
+            val loaderInfo = detectModLoader(versionJson)
             return mcVersion to loaderInfo
         }
 

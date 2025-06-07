@@ -36,11 +36,18 @@
     <string name="generic_custom">Custom</string>
     <string name="generic_search">Search</string>
     <string name="generic_loading">Loading</string>
+    <string name="generic_in_progress">In Progress</string>
     <string name="generic_anyway">Use Anyway</string>
     <string name="generic_go_it">Got it</string>
+    <string name="generic_file_name">File Name: %s</string>
+    <string name="generic_file_size">File Size: %s</string>
+    <!-- Unit -->
+    <string name="unit_day">day</string>
     <!-- Launcher Version -->
     <string name="launcher_version_label_alpha">Alpha Version: %s (Demo Only)</string>
     <string name="launcher_version_label_beta">Beta Version: %s (Demo Only)</string>
+    <string name="launcher_version_debug_warning">You are using a test version of %s! This version may be unstable and is primarily intended for feature testing and early access. It is not recommended for long-term use! If you encounter any issues during testing, please report them to us via GitHub and we will address them as soon as possible.</string>
+    <string name="launcher_version_debug_warning_cant_close">This warning cannot be dismissed</string>
     <!-- Themes -->
     <string name="theme_color_dynamic">Dynamic (Android 12+)</string>
     <string name="theme_color_embermire">Embermire</string>
@@ -83,7 +90,7 @@
     <string name="notification_title">Check Notification Permission</string>
     <string name="notification_request">Request Permission</string>
     <string name="notification_ignore">Ignore</string>
-    <string name="notification_data_jvm_service_message">To ensure a smooth installation, the launcher needs to run the installer in the background. We\'ll try to start a foreground service to keep things stable, but this requires notification permission. Could you help us enable it? This will help avoid any installation interruptions!</string>
+    <string name="notification_data_jvm_service_message">To ensure a smooth installation, the launcher needs to run the installer in the foreground. We\'ll try to start a foreground service to maintain stability, but this requires notification permissions. Could you help us enable notification permissions? This will help prevent installation interruptions!</string>
     <string name="notification_data_jvm_service_name">Foreground Installation Service</string>
     <string name="notification_data_jvm_service_running">Installing the game via foreground service</string>
     <!-- Unpacking -->
@@ -162,6 +169,17 @@
     <string name="account_logging_in_failed">Login failed</string>
     <string name="account_logging_in_saving">Fetching skin and saving account info</string>
     <string name="account_logging_time_out">Network timeout. Check your connection.</string>
+    <string name="account_logging_xbox_banned">Your account has been banned for violating the Xbox Community Standards and can no longer be used!</string>
+    <string name="account_logging_xbox_restricted">Your account is currently restricted. A guardian has not authorized you to play online games.</string>
+    <string name="account_logging_xbox_unregistered">Your account has not yet created an Xbox profile. Please go to https://signup.live.com/signup to register.</string>
+    <string name="account_logging_xbox_not_accepted_service">Your account has not accepted the Xbox Terms of Service.</string>
+    <string name="account_logging_xbox_blocked_region">Your account\'s region is not authorized to use Xbox services. The login attempt has been blocked.</string>
+    <string name="account_logging_xbox_requires_proof_of_age">Your account requires proof of age. Please log in at https://login.live.com/login.srf to provide the necessary information.</string>
+    <string name="account_logging_xbox_reached_playtime_limit">Your account has reached the playtime limit and has been blocked from logging in.</string>
+    <string name="account_logging_xbox_underage">The birthdate on the account indicates the user is under 18. A guardian must add this account to a family group to continue using it.</string>
+    <string name="account_logging_frequent">Login attempts are too frequent. Please try again later.</string>
+    <string name="account_logging_blocked_ip">The current IP address has been blocked from logging in.</string>
+    <string name="account_logging_profile_not_exists">Please create a Minecraft player profile first, then try logging in again!</string>
     <string name="account_logging_not_purchased_minecraft">Minecraft ownership not verified. Purchase it from Mojang\'s official site.</string>
     <string name="account_type_microsoft">Microsoft</string>
     <string name="account_type_local">Offline</string>
@@ -282,7 +300,7 @@
     <string name="versions_manage_delete_version_tip_hint2">If you have enabled version isolation, related files are stored only in this directory, so deleting the version will remove these files;</string>
     <string name="versions_manage_delete_version_tip_hint3">If version isolation is not enabled, game files are stored in the root directory, and deleting the version will not clean up all related files.</string>
     <string name="versions_manage_delete_version_tip_hint4">Please be sure to back up important data before proceeding and delete with caution!</string>
-    <string name="versions_manage_delete_version_tip_invalid">Missing JSON file. Confirm deletion of invalid version.</string>
+    <string name="versions_manage_delete_version_tip_invalid">The current version is missing its JSON file or is not in a valid format, so it has been marked as invalid. Therefore, you cannot select this version. Click OK to delete this faulty version.</string>
     <string name="versions_manage_task_error">Version operation failed</string>
     <string name="versions_manage_install_new">Install New</string>
     <string name="versions_manage_settings">Version Settings</string>
@@ -319,6 +337,43 @@
     <string name="versions_config_follow_global_if_blank">Leave blank to use global settings</string>
     <string name="versions_config_disable_if_blank">Leave blank to disable</string>
     <string name="versions_config_failed_to_save">Failed to save configuration</string>
+    <string name="saves_manage">Save Management</string>
+    <string name="saves_manage_info">Save Info</string>
+    <string name="saves_manage_only_show_compatible">Only show compatible saves</string>
+    <string name="saves_manage_invalid">Invalid save</string>
+    <string name="saves_manage_gamemode">Game Mode: %s</string>
+    <string name="saves_manage_gamemode_survival">Survival Mode</string>
+    <string name="saves_manage_gamemode_creative">Creative Mode</string>
+    <string name="saves_manage_gamemode_adventure">Adventure Mode</string>
+    <string name="saves_manage_gamemode_spectator">Spectator Mode</string>
+    <string name="saves_manage_hardcore">Hardcore Mode</string>
+    <string name="saves_manage_difficulty">Difficulty: %s</string>
+    <string name="saves_manage_difficulty_peaceful">Peaceful</string>
+    <string name="saves_manage_difficulty_easy">Easy</string>
+    <string name="saves_manage_difficulty_normal">Normal</string>
+    <string name="saves_manage_difficulty_hard">Hard</string>
+    <string name="saves_manage_difficulty_locked">Difficulty Locked</string>
+    <string name="saves_manage_allow_commands">Allow Commands</string>
+    <string name="saves_manage_world_seed">World Seed: %s</string>
+    <string name="saves_manage_exists">Save with this name exists</string>
+    <string name="saves_manage_save_name">Save Name</string>
+    <string name="saves_manage_backup">Backup Save</string>
+    <string name="saves_manage_delete_warning">Are you sure you want to delete the save file %s? This action cannot be undone!</string>
+    <string name="saves_manage_quick_play">Quick Play</string>
+    <string name="saves_manage_quick_play_disabled">Quick Play (1.20+ only)</string>
+    <string name="saves_manage_no_saves">No saves for this version</string>
+    <string name="resource_pack_manage">Resource Pack Management</string>
+    <string name="resource_pack_manage_info">Resource Pack Information</string>
+    <string name="resource_pack_manage_only_show_valid">Only show valid packs</string>
+    <string name="resource_pack_manage_invalid">Invalid Resource Pack Format</string>
+    <string name="resource_pack_manage_type">Resource Pack Type: %s</string>
+    <string name="resource_pack_manage_type_folder">Folder</string>
+    <string name="resource_pack_manage_type_zip">ZIP Archive</string>
+    <string name="resource_pack_manage_formats">Format Version: %s</string>
+    <string name="resource_pack_manage_exists">A resource pack with this name already exists</string>
+    <string name="resource_pack_manage_name">Resource Pack Name</string>
+    <string name="resource_pack_manage_delete_warning">Are you sure you want to delete the resource pack %s? This action cannot be undone!</string>
+    <string name="resource_pack_manage_no_packs">No resource packs available for the current version</string>
     <!-- Game -->
     <string name="minecraft_download_stat_download_task">Preparing downloads</string>
     <string name="minecraft_download_stat_verify_task">Preparing verifications</string>
@@ -405,9 +460,17 @@
     <string name="settings_launcher_full_screen_summary">Make the launcher pages fullscreen, ignoring safe areas like notches and punch-holes</string>
     <string name="settings_launcher_animate_speed_title">Animation Speed</string>
     <string name="settings_launcher_animate_speed_summary">Adjust the playback speed multiplier for launcher animations</string>
+    <string name="settings_launcher_animate_extent_title">Animation Intensity</string>
+    <string name="settings_launcher_animate_extent_summary">Adjust the intensity of the launcher animations</string>
     <string name="settings_launcher_swap_animate_type_title">Transition Animation</string>
     <string name="settings_launcher_swap_animate_type_summary">Choose the page transition animation that best suits your preferences</string>
+    <string name="settings_launcher_log_retention_days_title">Log Retention Days</string>
+    <string name="settings_launcher_log_retention_days_summary">Set how many days launcher logs should be retained. Logs older than this will be automatically deleted.</string>
+    <string name="settings_launcher_log_share_title">Share Launcher Logs</string>
+    <string name="settings_launcher_log_share_summary">Tap to share the launcher log files, so developers can identify and fix issues with the launcher.</string>
+    <string name="settings_launcher_log_share_packing">Package launcher log files</string>
     <!-- About -->
+    <string name="about_plugin_title">Loaded Plugins</string>
     <string name="about_library_title">Third-Party Libraries</string>
     <!-- Permissions -->
     <string name="permissions_external_storage">%s requires file access to function properly</string>

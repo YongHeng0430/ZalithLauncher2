@@ -7,17 +7,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Clear
@@ -98,13 +99,13 @@ private fun AddonTextLayout(
     summary: String
 ) {
     Column(
-        modifier = modifier.padding(all = 8.dp)
+        modifier = modifier.padding(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall
         )
-        Spacer(modifier = Modifier.height(height = 4.dp))
         Text(
             text = summary,
             style = MaterialTheme.typography.bodySmall
@@ -210,8 +211,7 @@ fun <E> AddonListLayout(
                                 .padding(vertical = 4.dp),
                             contentPadding = PaddingValues(horizontal = 4.dp)
                         ) {
-                            items(items.size) { index ->
-                                val item = items[index]
+                            items(items) { item ->
                                 AddonListItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -370,17 +370,14 @@ fun AddonListItem(
             selected = selected,
             onClick = onClick
         )
-        Column {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
             Text(
                 text = itemName,
                 style = MaterialTheme.typography.labelMedium
             )
-            summary?.let {
-                Spacer(
-                    modifier = Modifier.height(height = 4.dp)
-                )
-                it()
-            }
+            summary?.invoke()
         }
     }
 }
@@ -406,13 +403,12 @@ fun OptiFineVersionSummary(optifine: OptiFineVersion) {
     }
 
     Row(
-        modifier = Modifier.alpha(alpha = 0.7f)
+        modifier = Modifier.alpha(alpha = 0.7f),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(text = typeText, style = MaterialTheme.typography.labelSmall)
-        Spacer(modifier = Modifier.width(12.dp))
         Text(text = dateText, style = MaterialTheme.typography.labelSmall)
         compatibilityText?.let {
-            Spacer(modifier = Modifier.width(12.dp))
             Text(text = it, style = MaterialTheme.typography.labelSmall)
         }
     }
@@ -427,11 +423,11 @@ fun ForgeVersionSummary(forgeVersion: ForgeVersion) {
     val dateText = stringResource(R.string.download_game_addon_date, forgeVersion.releaseTime)
 
     Row(
-        modifier = Modifier.alpha(alpha = 0.7f)
+        modifier = Modifier.alpha(alpha = 0.7f),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         recommendedText?.let {
             Text(text = it, style = MaterialTheme.typography.labelSmall)
-            Spacer(modifier = Modifier.width(12.dp))
         }
         Text(text = dateText, style = MaterialTheme.typography.labelSmall)
     }

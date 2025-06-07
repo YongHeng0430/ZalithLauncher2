@@ -4,6 +4,7 @@
 [![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
 
 [English](README.md)  
+[繁體中文](README_ZH_TW.md)
 
 **Zalith Launcher 2** 是一个全新设计、面向 **Android 设备** 的 [Minecraft: Java Edition](https://www.minecraft.net/) 启动器。项目使用 [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) 作为启动核心，采用 **Jetpack Compose** 与 **Material Design 3** 构建现代化 UI 体验。  
 我们目前正在搭建自己的官方网站 [zalithlauncher.cn](https://zalithlauncher.cn)  
@@ -32,6 +33,7 @@
 * [x] 自定义游戏安装目录
 * [x] 账号系统：微软 OAuth 登录、离线账号、认证服务器支持
 * [x] Java 环境管理
+* [x] 内容管理器：存档 / 资源包 管理界面
 
 ### 🛠️ 开发中 / 计划中功能
 
@@ -45,7 +47,7 @@
 * [ ] 资源包下载与自动安装
 * [ ] 存档下载与安装功能
 * [ ] 光影包下载与自动安装
-* [ ] 内容管理器：模组 / 资源包 / 存档 / 光影包 管理界面
+* [ ] 内容管理器：模组 / 光影包 管理界面
 * [ ] 手柄控制支持
 
 
@@ -64,6 +66,8 @@
 我们欢迎社区为其他语言贡献翻译！
 
 * **土耳其语** - 作者：Star1xr
+* **繁体中文** - 作者：HongyiHank
+* **俄语** - 作者：warrior-genius
 
 ### 📌 为什么只保证英语与简体中文？
 
@@ -132,3 +136,13 @@ git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
 ## 📜 License
 
 本项目代码遵循 **[GPL-3.0 license](LICENSE)** 开源协议。
+
+### 附加条款 (依据 GPLv3 开源协议第七条)  
+
+1. 当你分发该程序的修改版本时，你必须以合理方式修改该程序的名称或版本号，以示其与原始版本不同。(依据 [GPLv3, 7(c)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L372-L374))
+   - 修改版本 **不得在名称中包含原程序名称 “ZalithLauncher” 或其缩写 “ZL”，也不得使用与官方名称相近、可能导致混淆的名称**。
+   - 所有修改版本 **必须在程序启动页面或主界面中以明显方式标注其为“非官方修改版”**。
+   - 该程序的应用名称可在 [gradle.properties](./ZalithLauncher/gradle.properties) 中修改。
+
+2. 你不得移除该程序所显示的版权声明。(依据 [GPLv3, 7(b)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L368-L370))
+

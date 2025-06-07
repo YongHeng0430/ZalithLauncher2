@@ -1,15 +1,18 @@
 package com.movtery.zalithlauncher.ui.screens.content.settings
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Launch
 import androidx.compose.material3.HorizontalDivider
@@ -20,14 +23,22 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
 import com.movtery.zalithlauncher.R
+import com.movtery.zalithlauncher.game.plugin.ApkPlugin
+import com.movtery.zalithlauncher.game.plugin.PluginLoader
+import com.movtery.zalithlauncher.game.plugin.appCacheIcon
 import com.movtery.zalithlauncher.state.MutableStates
 import com.movtery.zalithlauncher.ui.base.BaseScreen
 import com.movtery.zalithlauncher.ui.components.itemLayoutColor
@@ -66,6 +77,7 @@ private val libraryData = listOf(
     LibraryInfo("ktor-serialization-kotlinx-json", COPYRIGHT_KTOR, LICENSE_APACHE_2, URL_KTOR),
     LibraryInfo("material-color-utilities", "Copyright 2021 Google LLC", LICENSE_APACHE_2, "https://github.com/material-foundation/material-color-utilities"),
     LibraryInfo("Maven Artifact", "Copyright © The Apache Software Foundation", LICENSE_APACHE_2, "https://github.com/apache/maven/tree/maven-3.9.9/maven-artifact"),
+    LibraryInfo("NBT", "Copyright © 2016 - 2020 Querz", LICENSE_MIT, "https://github.com/Querz/NBT"),
     LibraryInfo("OkHttp", "Copyright © 2019 Square, Inc.", LICENSE_APACHE_2, "https://github.com/square/okhttp"),
     LibraryInfo("proxy-client-android", null, LICENSE_LGPL_3, "https://github.com/TouchController/TouchController"),
     LibraryInfo("StringFog", "Copyright © 2016-2023, Megatron King", LICENSE_APACHE_2, "https://github.com/MegatronKing/StringFog"),
@@ -84,60 +96,151 @@ fun AboutInfoScreen() {
     BaseScreen(
         parentScreenTag = SETTINGS_SCREEN_TAG,
         parentCurrentTag = MutableStates.mainScreenTag,
-        childScreenTag = ABOUT_INFO_SCREEN_TAG,
+        childScreenTag = "AboutInfoScreen",
         childCurrentTag = MutableStates.settingsScreenTag
     ) { isVisible ->
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(state = rememberScrollState())
-                .padding(all = 12.dp)
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(all = 12.dp)
         ) {
-            val yOffset by swapAnimateDpAsState(
-                targetValue = (-40).dp,
-                swapIn = isVisible
-            )
-
-            //额外依赖库板块
-            SettingsBackground(
-                modifier = Modifier
-                    .offset {
-                        IntOffset(
-                            x = 0,
-                            y = yOffset.roundToPx()
-                        )
-                    },
-                contentPadding = 0.dp
-            ) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                        text = stringResource(R.string.about_library_title),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.width(width = 8.dp))
-                    HorizontalDivider(
-                        modifier = Modifier
-                            .padding(horizontal = 12.dp)
-                            .fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(all = 12.dp)
-                    ) {
-                        repeat(libraryData.size) { index ->
-                            val info = libraryData[index]
-                            LibraryInfoItem(
-                                info = info,
-                                modifier = Modifier
-                                    .padding(bottom = if (index == libraryData.size - 1) 0.dp else 12.dp)
-                            )
+            item {
+                val yOffset by swapAnimateDpAsState(
+                    targetValue = (-40).dp,
+                    swapIn = isVisible
+                )
+                //已加载插件板块
+                ChunkLayout(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    title = stringResource(R.string.about_plugin_title)
+                ) {
+                    val allPlugins = PluginLoader.allPlugins
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        allPlugins.forEach { apkPlugin ->
+                            PluginInfoItem(apkPlugin = apkPlugin)
                         }
                     }
                 }
+            }
+
+            item {
+                val yOffset by swapAnimateDpAsState(
+                    targetValue = (-40).dp,
+                    swapIn = isVisible,
+                    delayMillis = 50
+                )
+                //额外依赖库板块
+                ChunkLayout(
+                    modifier = Modifier.offset { IntOffset(x = 0, y = yOffset.roundToPx()) },
+                    title = stringResource(R.string.about_library_title)
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        libraryData.forEach { info ->
+                            LibraryInfoItem(info = info)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChunkLayout(
+    modifier: Modifier = Modifier,
+    title: String,
+    content: @Composable () -> Unit
+) {
+    SettingsBackground(
+        modifier = modifier,
+        contentPadding = 0.dp
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.width(width = 8.dp))
+            HorizontalDivider(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(all = 12.dp)
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+private fun PluginInfoItem(
+    apkPlugin: ApkPlugin,
+    modifier: Modifier = Modifier,
+    color: Color = itemLayoutColor(),
+    contentColor: Color = MaterialTheme.colorScheme.onSurface,
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.large,
+        shadowElevation = 1.dp,
+        onClick = {}
+    ) {
+        val context = LocalContext.current
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            val iconFile = appCacheIcon(apkPlugin.packageName)
+            if (iconFile.exists()) {
+                val model = remember(context, iconFile) {
+                    ImageRequest.Builder(context)
+                        .data(iconFile)
+                        .build()
+                }
+                AsyncImage(
+                    modifier = Modifier.size(34.dp),
+                    model = model,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Image(
+                    modifier = Modifier.size(34.dp),
+                    painter = painterResource(R.drawable.ic_unknown_icon),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit
+                )
+            }
+
+            Column(
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = apkPlugin.appName,
+                    style = MaterialTheme.typography.titleSmall
+                )
+                Text(
+                    text = buildString {
+                        append(apkPlugin.packageName)
+                        if (apkPlugin.appVersion.isNotEmpty()) {
+                            append(" • ")
+                            append(apkPlugin.appVersion)
+                        }
+                    },
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
         }
     }

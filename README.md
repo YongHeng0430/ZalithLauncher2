@@ -4,6 +4,7 @@
 [![Sponsor](https://img.shields.io/badge/sponsor-30363D?logo=GitHub-Sponsors)](https://afdian.com/a/MovTery)
 
 [简体中文](README_ZH_CN.md)  
+[繁體中文](README_ZH_TW.md)
 
 **Zalith Launcher 2** is a newly designed launcher for **Android devices** tailored for [Minecraft: Java Edition](https://www.minecraft.net/). The project uses [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher/tree/v3_openjdk/app_pojavlauncher/src/main/jni) as its core launching engine and features a modern UI built with **Jetpack Compose** and **Material Design 3**.
 We are currently building our official website [zalithlauncher.cn](https://zalithlauncher.cn)  
@@ -28,6 +29,7 @@ Here’s the current roadmap of features and development status:
 * [x] Customizable game installation directory
 * [x] Account system: Microsoft OAuth login, offline accounts, and authentication server support
 * [x] Java runtime management
+* [x] Content managers: UI for managing saves / resource packs
 
 ### 🛠️ In Development / Planned Features
 
@@ -41,7 +43,7 @@ Here’s the current roadmap of features and development status:
 * [ ] Resource pack download and automatic installation
 * [ ] World save download and installation
 * [ ] Shader pack download and automatic installation
-* [ ] Content managers: UI for managing mods / resource packs / worlds / shaders
+* [ ] Content managers: UI for managing mods / shaders
 * [ ] Gamepad control support
 
 ## 🌐 Language and Translation Support
@@ -58,6 +60,8 @@ These two languages are **officially maintained by the project and guaranteed fo
 We welcome the community to contribute translations for other languages!
 
 * **Turkish** - by Star1xr
+* **Traditional Chinese** - by HongyiHank
+* **Russian** - by warrior-genius
 
 ### 📌 Why Only English and Simplified Chinese?
 
@@ -124,3 +128,13 @@ git clone git@github.com:ZalithLauncher/ZalithLauncher2.git
 ## 📜 License
 
 This project is licensed under the **[GPL-3.0 license](LICENSE)**.
+
+### Additional Terms (Pursuant to Section 7 of the GPLv3 License)
+
+1. When distributing a modified version of this program, you must reasonably modify the program's name or version number to distinguish it from the original version. (According to [GPLv3, 7(c)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L372-L374))
+    - Modified versions **must not include the original program name "ZalithLauncher" or its abbreviation "ZL" in their name, nor use any name that is similar enough to cause confusion with the official name**.
+    - All modified versions **must clearly indicate that they are “Unofficial Modified Versions” on the program’s startup screen or main interface**.
+    - The application name of the program can be modified in [gradle.properties](./ZalithLauncher/gradle.properties).
+
+2. You must not remove the copyright notices displayed by the program. (According to [GPLv3, 7(b)](https://github.com/ZalithLauncher/ZalithLauncher2/blob/969827b/LICENSE#L368-L370))
+
